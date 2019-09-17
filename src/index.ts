@@ -21,7 +21,7 @@ export async function resolveModuleArtifactPath(identifier: string, basePath?: s
     if (identifier.indexOf('#') >= 0) {
         const [ moduleIdentifier, globPath ] = identifier.split('#', 2);
 
-        const resolvedModuleIdentifier = await resolveModuleIdentifier(moduleIdentifier);
+        const resolvedModuleIdentifier = await resolveModuleIdentifier(moduleIdentifier, basePath);
 
         let resolvedModuleIdentifierDir = Path.dirname(resolvedModuleIdentifier);
         if (resolvedModuleIdentifierDir.endsWith('dist')) {
@@ -102,7 +102,7 @@ export const create: CreateRendererHandler = async (options, params) => {
     //     else if (_.isString(options.partials))
     //         return [ Path.resolve(params.basePath, options.partials) ];
     // })();
-
+console.log(params)
     const templatePath = await resolveModuleArtifactPath(options.template, params.basePath);
 
     const promisedPartialsPath = (() => {
