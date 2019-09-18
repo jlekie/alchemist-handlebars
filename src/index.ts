@@ -71,6 +71,7 @@ export class HandlebarsRenderer extends ARenderer {
         handlebars.registerHelper('upperFirst', (value: any) => _.upperFirst(value));
         handlebars.registerHelper('lowerFirst', (value: any) => _.lowerFirst(value));
         handlebars.registerHelper('repeat', (value: any, count: number) => _.repeat(value, count));
+        handlebars.registerHelper('abbreviate', (value: any, options: { hash: { separator?: string }}) => _.compact(_.kebabCase(value).split('-').map(f => f[0])).map(f => f.toUpperCase() + (options.hash.separator || '')).join(''));
 
         for (const partials of this.partials) {
             const matches = await Glob.match(partials);
@@ -102,7 +103,7 @@ export const create: CreateRendererHandler = async (options, params) => {
     //     else if (_.isString(options.partials))
     //         return [ Path.resolve(params.basePath, options.partials) ];
     // })();
-console.log(params)
+
     const templatePath = await resolveModuleArtifactPath(options.template, params.basePath);
 
     const promisedPartialsPath = (() => {
