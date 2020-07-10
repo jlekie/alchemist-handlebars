@@ -21,7 +21,7 @@
     "typescript": "3.6.3"
   },
   "dependencies": {
-    "@jlekie/alchemist": "1.0.0-alpha.1",
+    "@jlekie/alchemist": "1.0.0-alpha.3",
     "bluebird": "3.5.5",
     "fs-extra": "8.1.0",
     "glob": "7.1.4",
