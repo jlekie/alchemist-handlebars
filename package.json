@@ -1,6 +1,6 @@
 {
   "name": "@jlekie/alchemist-handlebars",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "Joe Lekie",
