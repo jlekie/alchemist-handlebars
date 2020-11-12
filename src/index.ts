@@ -72,6 +72,7 @@ export class HandlebarsRenderer extends ARenderer {
         handlebars.registerHelper('lowerFirst', (value: any) => _.lowerFirst(value));
         handlebars.registerHelper('repeat', (value: any, count: number) => _.repeat(value, count));
         handlebars.registerHelper('abbreviate', (value: any, options: { hash: { separator?: string }}) => _.compact(_.kebabCase(value).split('-').map(f => f[0])).map(f => f.toUpperCase() + (options.hash.separator || '')).join(''));
+        handlebars.registerHelper('concat', (...values: any[]) => values.slice(0, values.length - 1).join(''));
 
         for (const partials of this.partials) {
             const matches = await Glob.match(partials);
