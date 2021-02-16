@@ -21,7 +21,7 @@ export async function resolveModuleArtifactPath(identifier: string, basePath?: s
     if (identifier.indexOf('#') >= 0) {
         const [ moduleIdentifier, globPath ] = identifier.split('#', 2);
 
-        const resolvedModuleIdentifier = await resolveModuleIdentifier(moduleIdentifier);
+        const resolvedModuleIdentifier = await resolveModuleIdentifier(moduleIdentifier, basePath);
 
         let resolvedModuleIdentifierDir = Path.dirname(resolvedModuleIdentifier);
         if (resolvedModuleIdentifierDir.endsWith('dist')) {
@@ -71,6 +71,8 @@ export class HandlebarsRenderer extends ARenderer {
         handlebars.registerHelper('upperFirst', (value: any) => _.upperFirst(value));
         handlebars.registerHelper('lowerFirst', (value: any) => _.lowerFirst(value));
         handlebars.registerHelper('repeat', (value: any, count: number) => _.repeat(value, count));
+        handlebars.registerHelper('abbreviate', (value: any, options: { hash: { separator?: string }}) => _.compact(_.kebabCase(value).split('-').map(f => f[0])).map(f => f.toUpperCase() + (options.hash.separator || '')).join(''));
+        handlebars.registerHelper('concat', (...values: any[]) => values.slice(0, values.length - 1).join(''));
 
         for (const partials of this.partials) {
             const matches = await Glob.match(partials);
