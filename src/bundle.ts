@@ -4,13 +4,15 @@ import * as Bluebird from 'bluebird';
 import * as FS from 'fs-extra';
 import * as Path from 'path';
 
-import * as Yaml from 'js-yaml';
-
 import * as _ from 'lodash';
 
 import { CreateRendererHandler, ARenderer, Context } from '@jlekie/alchemist';
 
 import * as Glob from './lib/globAsync';
+
+export interface BundleManifest {
+    path: string;
+}
 
 export async function resolveModuleIdentifier(identifier: string, basePath?: string) {
     const resolvedPath = require.resolve(identifier, basePath ? {
@@ -40,16 +42,16 @@ export async function resolveModuleArtifactPath(identifier: string, basePath?: s
     }
 }
 
-export class HandlebarsRenderer extends ARenderer {
-    public readonly templates: string[];
+export class HandlebarsBundleRenderer extends ARenderer {
+    public readonly template: string;
     public readonly partials: string[];
 
     // private readonly handlebars: typeof Handlebars;
 
-    public constructor(templates: string[], partials?: string[]) {
+    public constructor(template: string, partials?: string[]) {
         super();
 
-        this.templates = templates;
+        this.template = template;
         this.partials = partials || [];
 
         // this.handlebars = Handlebars.create();
@@ -75,8 +77,6 @@ export class HandlebarsRenderer extends ARenderer {
         handlebars.registerHelper('repeat', (value: any, count: number) => _.repeat(value, count));
         handlebars.registerHelper('abbreviate', (value: any, options: { hash: { separator?: string }}) => _.compact(_.kebabCase(value).split('-').map(f => f[0])).map(f => f.toUpperCase() + (options.hash.separator || '')).join(''));
         handlebars.registerHelper('concat', (...values: any[]) => values.slice(0, values.length - 1).join(''));
-        handlebars.registerHelper('yaml', (value: any) => Yaml.dump(value));
-        handlebars.registerHelper('---', () => '---');
 
         for (const partials of this.partials) {
             const matches = await Glob.match(partials);
@@ -92,12 +92,10 @@ export class HandlebarsRenderer extends ARenderer {
             }
         }
 
-        return Bluebird.map(this.templates, async templatePath => {
-            const template = await FS.readFile(templatePath, 'utf8');
-            const compiledTemplate = handlebars.compile(template, { noEscape: true });
-    
-            return Buffer.from(compiledTemplate(context.payload), 'utf8');
-        });
+        const template = await FS.readFile(this.template, 'utf8');
+        const compiledTemplate = handlebars.compile(template, { noEscape: true });
+
+        return Buffer.from(compiledTemplate(context.payload), 'utf8');
     }
 }
 
@@ -111,33 +109,15 @@ export const create: CreateRendererHandler = async (options, params) => {
     //         return [ Path.resolve(params.basePath, options.partials) ];
     // })();
 
-    if (options.templates) {
-        const templatePaths = await Bluebird
-            .map(options.templates, (path: string) => resolveModuleArtifactPath(path, params.basePath))
-            .map(pattern => Glob.match(pattern))
-            .then(matches => _.flatten(matches));
+    const templatePath = await resolveModuleArtifactPath(options.template, params.basePath);
 
-        const promisedPartialsPath = (() => {
-            if (_.isArray(options.partials))
-                return Bluebird.map(options.partials, async (path: string) => resolveModuleArtifactPath(path, params.basePath));
-            else if (_.isString(options.partials))
-                return [ resolveModuleArtifactPath(options.partials, params.basePath) ];
-        })();
-        const partialsPath = promisedPartialsPath && await Bluebird.all(promisedPartialsPath);
-    
-        return new HandlebarsRenderer(templatePaths, partialsPath);
-    }
-    else {
-        const templatePath = await resolveModuleArtifactPath(options.template, params.basePath);
+    const promisedPartialsPath = (() => {
+        if (_.isArray(options.partials))
+            return Bluebird.map(options.partials, async (path: string) => resolveModuleArtifactPath(path, params.basePath));
+        else if (_.isString(options.partials))
+            return [ resolveModuleArtifactPath(options.partials, params.basePath) ];
+    })();
+    const partialsPath = promisedPartialsPath && await Bluebird.all(promisedPartialsPath);
 
-        const promisedPartialsPath = (() => {
-            if (_.isArray(options.partials))
-                return Bluebird.map(options.partials, async (path: string) => resolveModuleArtifactPath(path, params.basePath));
-            else if (_.isString(options.partials))
-                return [ resolveModuleArtifactPath(options.partials, params.basePath) ];
-        })();
-        const partialsPath = promisedPartialsPath && await Bluebird.all(promisedPartialsPath);
-    
-        return new HandlebarsRenderer([ templatePath ], partialsPath);
-    }
+    return new HandlebarsBundleRenderer(templatePath, partialsPath);
 };
