@@ -4,6 +4,9 @@ import * as Bluebird from 'bluebird';
 import * as FS from 'fs-extra';
 import * as Path from 'path';
 
+import { v4 as Uuid } from 'uuid'
+import * as Crypto from 'crypto';
+
 import * as Yaml from 'js-yaml';
 
 import * as _ from 'lodash';
@@ -77,6 +80,8 @@ export class HandlebarsRenderer extends ARenderer {
         handlebars.registerHelper('concat', (...values: any[]) => values.slice(0, values.length - 1).join(''));
         handlebars.registerHelper('yaml', (value: any) => Yaml.dump(value));
         handlebars.registerHelper('---', () => '---');
+        handlebars.registerHelper('uuid', () => Uuid());
+        handlebars.registerHelper('hash', (value: any, algorithm: string, digest: any) => Crypto.createHash(algorithm).update(value).digest(digest));
 
         for (const partials of this.partials) {
             const matches = await Glob.match(partials);
