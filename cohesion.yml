@@ -1,0 +1,12 @@
+tags:
+  - nodejs
+  - alchemist
+tasks:
+  - name: build
+    actions:
+      - type: exec
+        cmd: yarn build
+  - name: watch
+    actions:
+      - type: exec
+        cmd: yarn watch
