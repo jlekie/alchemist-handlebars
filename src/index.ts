@@ -80,7 +80,14 @@ export class HandlebarsRenderer extends ARenderer {
         handlebars.registerHelper('concat', (...values: any[]) => values.slice(0, values.length - 1).join(''));
         handlebars.registerHelper('yaml', (value: any) => Yaml.dump(value));
         handlebars.registerHelper('---', () => '---');
-        handlebars.registerHelper('uuid', () => Uuid());
+        handlebars.registerHelper('uuid', (style: string) => {
+            if (style === 'nodash') {
+                return Uuid().replace(/-/g, '');
+            }
+            else {
+                return Uuid();
+            }
+        });
         handlebars.registerHelper('hash', (value: any, algorithm: string, digest: any) => Crypto.createHash(algorithm).update(value).digest(digest));
 
         for (const partials of this.partials) {
@@ -101,7 +108,9 @@ export class HandlebarsRenderer extends ARenderer {
             const template = await FS.readFile(templatePath, 'utf8');
             const compiledTemplate = handlebars.compile(template, { noEscape: true });
     
-            return Buffer.from(compiledTemplate(context.payload), 'utf8');
+            return {
+                buffer: Buffer.from(compiledTemplate(context.payload), 'utf8')
+            };
         });
     }
 }
