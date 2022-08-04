@@ -1,6 +1,7 @@
-tags:
-  - nodejs
-  - alchemist
+labels:
+  app.cohesion.io/name: alchemist
+  app.cohesion.io/platform: nodejs
+  app.cohesion.io/platform/language: typescript
 tasks:
   - name: build
     actions:
