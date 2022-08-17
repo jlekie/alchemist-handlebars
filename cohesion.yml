@@ -11,3 +11,7 @@ tasks:
     actions:
       - type: exec
         cmd: yarn watch
+  - name: publish
+    actions:
+      - type: exec
+        cmd: yarn npm publish --access=public
