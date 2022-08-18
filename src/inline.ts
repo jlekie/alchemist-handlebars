@@ -50,7 +50,7 @@ export class InlineRenderer extends ARenderer {
             const compiledTemplate = handlebars.compile(template, { noEscape: true });
 
             return {
-                qualifier: path,
+                qualifier: handlebars.compile(path, { noEscape: true })(context.payload),
                 buffer: Buffer.from(compiledTemplate(context.payload), 'utf8')
             };
         });
