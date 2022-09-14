@@ -1,0 +1,17 @@
+labels:
+  app.cohesion.io/name: alchemist
+  app.cohesion.io/platform: nodejs
+  app.cohesion.io/platform/language: typescript
+tasks:
+  - name: build
+    actions:
+      - type: exec
+        cmd: yarn build
+  - name: watch
+    actions:
+      - type: exec
+        cmd: yarn watch
+  - name: publish
+    actions:
+      - type: exec
+        cmd: yarn npm publish --access=public
