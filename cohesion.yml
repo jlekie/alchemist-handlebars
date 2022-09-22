@@ -14,4 +14,4 @@ tasks:
   - name: publish
     actions:
       - type: exec
-        cmd: yarn npm publish --access=public
+        cmd: yarn npm publish --tolerate-republish --access=public
