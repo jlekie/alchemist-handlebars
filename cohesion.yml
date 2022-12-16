@@ -2,6 +2,7 @@ labels:
   app.cohesion.io/name: alchemist
   app.cohesion.io/platform: nodejs
   app.cohesion.io/platform/language: typescript
+  app.cohesion.io/platform/pms: yarn
 tasks:
   - name: build
     actions:
