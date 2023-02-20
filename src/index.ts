@@ -88,6 +88,8 @@ export class HandlebarsRenderer extends ARenderer {
                 return Uuid();
             }
         });
+        handlebars.registerHelper('normalizePath', (value: any) => Path.normalize(value));
+        handlebars.registerHelper('joinPath', (...values: any[]) => Path.join(..._.compact(values.slice(0, -1))));
         handlebars.registerHelper('hash', (value: any, algorithm: string, digest: any) => Crypto.createHash(algorithm).update(value).digest(digest));
 
         for (const partials of this.partials) {
