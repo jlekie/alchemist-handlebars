@@ -7,6 +7,8 @@ import * as Path from 'path';
 import { v4 as Uuid } from 'uuid'
 import * as Crypto from 'crypto';
 
+import * as Minimatch from 'minimatch';
+
 import * as Yaml from 'js-yaml';
 
 import * as _ from 'lodash';
@@ -46,6 +48,11 @@ export class InlineRenderer extends ARenderer {
         });
         handlebars.registerHelper('normalizePath', (value: any) => Path.normalize(value));
         handlebars.registerHelper('joinPath', (...values: any[]) => Path.join(..._.compact(values.slice(0, -1))));
+        handlebars.registerHelper('mixmatch', (a: any[], ...b: any[]) => {
+            const patterns = b.slice(0, -1);
+
+            return _.some(a, i => _.some(patterns, ii => Minimatch(i, ii)));
+        });
         handlebars.registerHelper('hash', (value: any, algorithm: string, digest: any) => Crypto.createHash(algorithm).update(value).digest(digest));
 
         return Bluebird.map(this.outputs, async ({ path, template }) => {
