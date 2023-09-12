@@ -79,6 +79,12 @@ export class HandlebarsRenderer extends ARenderer {
         handlebars.registerHelper('abbreviate', (value: any, options: { hash: { separator?: string }}) => _.compact(_.kebabCase(value).split('-').map(f => f[0])).map(f => f.toUpperCase() + (options.hash.separator || '')).join(''));
         handlebars.registerHelper('concat', (...values: any[]) => values.slice(0, values.length - 1).join(''));
         handlebars.registerHelper('yaml', (value: any) => Yaml.dump(value));
+        handlebars.registerHelper('indentBlob', (indent: string, value: string) => {
+            // const parsedIndent = parseInt(indent);
+            // console.log('+' + (parsedIndent !== Number.NaN ? _.repeat(' ', parsedIndent) : indent) + '+')
+            console.log('+' + (typeof indent === 'number' ? _.repeat(' ', indent) : indent) + '+')
+            return value.replace(/(\r\n|\r|\n)/gm, `$1${typeof indent === 'number' ? _.repeat(' ', indent) : indent}`);
+        });
         handlebars.registerHelper('---', () => '---');
         handlebars.registerHelper('uuid', (style: string) => {
             if (style === 'nodash') {
